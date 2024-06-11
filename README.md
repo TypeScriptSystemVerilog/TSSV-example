@@ -41,3 +41,15 @@ node out/test/test_FIR2.js
 cat sv-examples/test_FIR2_output/myFIR23.sv
 ```
 
+## Creating Your Own TSSV Project
+
+This repository can be used as a template to make your own TSSV project as follows:
+1. Clone this repository
+3. Delete .git
+2. Create an empty git repository
+4. Copy the contents from this repository to your repository
+5. Delete the FIR2 and test_FIR2 example modules
+6. Add your own TSSV module designs to your ./ts tree
+7. Use `tsc` and `node` to comple and run your designs the same as in the TSSV repo itself
+
+
