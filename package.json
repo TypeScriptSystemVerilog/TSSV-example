@@ -1,0 +1,30 @@
+{
+  "name": "tssv-example",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Example TSSV Project",
+  "main": "tssv-example",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "exports": {
+    "./lib/*": "./out/src/*.js",
+    "./test/*": "./out/test/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "lib/*": [
+        "out/src/*"
+      ],
+      "test/*": [
+        "out/test/*"
+      ]
+    }
+  },
+  "dependencies": {
+    "@types/node": "^20.14.2",
+    "typescript": "^5.4.5"
+  }
+}

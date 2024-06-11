@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "outDir": "./out",
+    "rootDir": "./ts",
+    "strict": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",  
+    "declaration": true
+  },
+  "module": "ES2020", // (A)
+  "moduleResolution": "Node", // (B)
+  "strict": true,
+  "sourceMap": true,
+  // Needed for CommonJS modules
+  "allowSyntheticDefaultImports": true, // (C)
+  //
+  "declaration": true,
+  "include" : [
+    "ts/**/*.ts"
+  ],
+  "exclude" : [
+    "node_modules"
+  ]
+}
