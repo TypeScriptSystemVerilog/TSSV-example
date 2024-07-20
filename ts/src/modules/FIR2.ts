@@ -1,9 +1,10 @@
-import { Module, type TSSVParameters, type IntRange, Sig, Expr } from 'tssv/lib/core/TSSV'
+import TSSV from 'tssv/lib/core/TSSV'
 
+type inWidthType = TSSV.IntRange<1, 32>
 /**
- * configuration parameters of the FIR module
+ * configuration parameters of the FIR2 module
  */
-export interface FIR2_Parameters extends TSSVParameters {
+export interface FIR2_Parameters extends TSSV.TSSVParameters {
   /**
      * Array containing the coefficients of the FIR filter
      */
@@ -11,20 +12,44 @@ export interface FIR2_Parameters extends TSSVParameters {
   /**
      * bit width of the FIR input data
      */
-  inWidth?: IntRange<1, 32>
+  inWidth?: inWidthType
   /**
      * bit width of the FIR output data
      * @remarks result will be saturated or ign extended as needed
      */
-  outWidth?: IntRange<1, 32>
+  outWidth?: TSSV.IntRange<1, 32>
   /**
      * right to apply to the FIR result to scale down the output
      */
-  rShift?: IntRange<0, 32>
+  rShift?: TSSV.IntRange<0, 32>
 }
 
-export class FIR2 extends Module {
+/**
+ * FIR Interface
+ *
+ * @wavedrom
+ * ```json
+ * {
+ *   "signal": [
+ *     {"name": "     clk", "wave": "p........."},
+ *     {"name": "      en", "wave": "01.0.1.01."},
+ *     {"name": " data_in", "wave": "x34..56.78", "data": ["i0", "i1", "i2", "i3", "i4", "i5"]},
+ *     {"name": "data_out", "wave": "x.34..56.7", "data": ["o0", "o1", "o2", "o3", "o4", "o5"]}
+ *   ]
+ * }
+ * ```
+ */
+export interface FIR2_Ports extends TSSV.IOSignals {
+  clk: { direction: 'input', isClock: 'posedge' }
+  rst_b: { direction: 'input', isReset: 'lowasync' }
+  en: { direction: 'input' }
+  data_in: { direction: 'input', width: inWidthType, isSigned: true }
+  data_out: { direction: 'output', width: number, isSigned: true }
+}
+
+export class FIR2 extends TSSV.Module {
   declare params: FIR2_Parameters
+  declare IOs: FIR2_Ports
   constructor (params: FIR2_Parameters) {
     super({
       // define the default parameter values
@@ -40,13 +65,13 @@ export class FIR2 extends Module {
       clk: { direction: 'input', isClock: 'posedge' },
       rst_b: { direction: 'input', isReset: 'lowasync' },
       en: { direction: 'input' },
-      data_in: { direction: 'input', width: this.params.inWidth, isSigned: true },
-      data_out: { direction: 'output', width: this.params.outWidth, isSigned: true }
+      data_in: { direction: 'input', width: this.params.inWidth || 8, isSigned: true },
+      data_out: { direction: 'output', width: this.params.outWidth || 9, isSigned: true }
     }
 
     // construct logic
-    let nextTapIn: Sig = new Sig('data_in')
-    const products: Sig[] = []
+    let nextTapIn: TSSV.Sig = new TSSV.Sig('data_in')
+    const products: TSSV.Sig[] = []
     let coeffSum = 0
     for (let i = 0; i < this.params.coefficients.length; i++) {
       // construct tap delay line
@@ -65,7 +90,7 @@ export class FIR2 extends Module {
     const productsExt = products.map((p) => `${sumWidth}'(${p.toString()})`)
     this.addSignal('sum', { width: sumWidth, isSigned: true })
     this.addRegister({
-      d: new Expr(`${productsExt.join(' + ')}`),
+      d: new TSSV.Expr(`${productsExt.join(' + ')}`),
       clk: 'clk',
       reset: 'rst_b',
       en: 'en',
@@ -86,3 +111,5 @@ export class FIR2 extends Module {
     })
   }
 }
+
+export default FIR2

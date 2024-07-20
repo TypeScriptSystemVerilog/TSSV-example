@@ -1,5 +1,5 @@
-import { Module, Sig, Expr } from 'tssv/lib/core/TSSV';
-export class FIR2 extends Module {
+import TSSV from 'tssv/lib/core/TSSV';
+export class FIR2 extends TSSV.Module {
     constructor(params) {
         super({
             // define the default parameter values
@@ -14,11 +14,11 @@ export class FIR2 extends Module {
             clk: { direction: 'input', isClock: 'posedge' },
             rst_b: { direction: 'input', isReset: 'lowasync' },
             en: { direction: 'input' },
-            data_in: { direction: 'input', width: this.params.inWidth, isSigned: true },
-            data_out: { direction: 'output', width: this.params.outWidth, isSigned: true }
+            data_in: { direction: 'input', width: this.params.inWidth || 8, isSigned: true },
+            data_out: { direction: 'output', width: this.params.outWidth || 9, isSigned: true }
         };
         // construct logic
-        let nextTapIn = new Sig('data_in');
+        let nextTapIn = new TSSV.Sig('data_in');
         const products = [];
         let coeffSum = 0;
         for (let i = 0; i < this.params.coefficients.length; i++) {
@@ -35,7 +35,7 @@ export class FIR2 extends Module {
         const productsExt = products.map((p) => `${sumWidth}'(${p.toString()})`);
         this.addSignal('sum', { width: sumWidth, isSigned: true });
         this.addRegister({
-            d: new Expr(`${productsExt.join(' + ')}`),
+            d: new TSSV.Expr(`${productsExt.join(' + ')}`),
             clk: 'clk',
             reset: 'rst_b',
             en: 'en',
@@ -55,3 +55,4 @@ export class FIR2 extends Module {
         });
     }
 }
+export default FIR2;
